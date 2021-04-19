@@ -20,9 +20,12 @@ interface Product {
 const Cart = (): JSX.Element => {
   const { cart, removeProduct, updateProductAmount } = useCart();
 
-  // const cartFormatted = cart.map(product => ({
+  const cartFormatted = cart.map(product => ({
+    ...product,
+    priceFormatted: formatPrice(product.price),
+    subtotal: formatPrice(product.price * product.amount),
+  }))
 
-  // }))
   const total =
     formatPrice(
       cart.reduce((sumTotal, product) => {
@@ -31,11 +34,17 @@ const Cart = (): JSX.Element => {
     )
 
   function handleProductIncrement(product: Product) {
-    // TODO
+    const productId = product.id;
+    const amount = product.amount + 1;
+
+    updateProductAmount({ productId, amount });
   }
 
   function handleProductDecrement(product: Product) {
-    // TODO
+    const productId = product.id;
+    const amount = product.amount - 1;
+
+    updateProductAmount({ productId, amount });
   }
 
   function handleRemoveProduct(productId: number) {
@@ -55,14 +64,14 @@ const Cart = (): JSX.Element => {
           </tr>
         </thead>
         <tbody>
-          {cart.map(product => (
+          {cartFormatted.map(product => (
             <tr data-testid="product" key={product.id}>
               <td>
                 <img src={product.image} alt={product.title} />
               </td>
               <td>
                 <strong>{product.title}</strong>
-                <span>{formatPrice(product.price)}</span>
+                <span>{product.priceFormatted}</span>
               </td>
               <td>
                 <div>
@@ -70,7 +79,7 @@ const Cart = (): JSX.Element => {
                     type="button"
                     data-testid="decrement-product"
                     disabled={product.amount <= 1}
-                  // onClick={() => handleProductDecrement()}
+                    onClick={() => handleProductDecrement(product)}
                   >
                     <MdRemoveCircleOutline size={20} />
                   </button>
@@ -83,14 +92,14 @@ const Cart = (): JSX.Element => {
                   <button
                     type="button"
                     data-testid="increment-product"
-                  // onClick={() => handleProductIncrement()}
+                    onClick={() => handleProductIncrement(product)}
                   >
                     <MdAddCircleOutline size={20} />
                   </button>
                 </div>
               </td>
               <td>
-                <strong>{formatPrice(product.price * product.amount)}</strong>
+                <strong>{product.subtotal}</strong>
               </td>
               <td>
                 <button
